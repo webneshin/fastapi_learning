@@ -1,7 +1,9 @@
 from typing import Optional
 
-from fastapi import FastAPI, Path, Query, status, HTTPException
+from fastapi import FastAPI, Path, Query, status, HTTPException, Request
 from pydantic import BaseModel
+from fastapi.templating import Jinja2Templates
+from starlette.responses import HTMLResponse
 
 app = FastAPI()
 
@@ -86,3 +88,13 @@ def response_model(user: UserCreate):
         # raise Exception("username can not be 'admin'")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="username can not be 'admin'")
     return user
+
+
+# template #############################################################################################################
+templates = Jinja2Templates(directory="templates")
+
+
+@app.get("/06_template/home", response_class=HTMLResponse)
+def template_sample(request: Request):
+    user_username = "webneshin"
+    return templates.TemplateResponse('home.html', {"request": request, "user_username": user_username})
