@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Path, Query
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -47,9 +47,21 @@ async def path_parameter(name: str, age: int = 38):
 class Person(BaseModel):
     name: str
     age: int
-    height: str | None = None
+    height: int | None = None
 
 
 @app.post("/03_request_body/user")
 def request_body(person: Person):
-    return person.name
+    return person
+
+
+# query path ###########################################################################################################
+class Person2(BaseModel):
+    name: str = Path(min_length=2, max_length=100)
+    age: int = Path(ge=18, le=100)
+    height: int | None = None
+
+
+@app.post("/04_query_path/user")
+def query_path(person: Person2, page:int=Query(0, ge=0)):
+    return person,page
