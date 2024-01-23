@@ -1,9 +1,12 @@
 from typing import Optional
 
-from fastapi import FastAPI, Path, Query, status, HTTPException, Request
+from fastapi import FastAPI, Path, Query, status, HTTPException, Request, Depends
 from pydantic import BaseModel
 from fastapi.templating import Jinja2Templates
 from starlette.responses import HTMLResponse
+from sqlalchemy.orm import Session
+from database import engine, SessionLocal
+import schemas, models
 
 app = FastAPI()
 
@@ -98,3 +101,15 @@ templates = Jinja2Templates(directory="templates")
 def template_sample(request: Request):
     user_username = "webneshin"
     return templates.TemplateResponse('home.html', {"request": request, "user_username": user_username})
+
+
+# database #############################################################################################################
+models.Base.metadata.create_all(bind=engine)
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
