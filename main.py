@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import FastAPI, Path, Query
+from fastapi import FastAPI, Path, Query, status, HTTPException
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -57,11 +57,32 @@ def request_body(person: Person):
 
 # query path ###########################################################################################################
 class Person2(BaseModel):
-    name: str = Path(min_length=2, max_length=100)
+    name: str = Path(min_length=2, max_length=100, title="Fullname", description="firstname and lastname of user")
     age: int = Path(ge=18, le=100)
     height: int | None = None
 
 
 @app.post("/04_query_path/user")
-def query_path(person: Person2, page:int=Query(0, ge=0)):
-    return person,page
+def query_path(person: Person2, page: int = Query(0, ge=0)):
+    return person, page
+
+
+# response model #######################################################################################################
+
+class UserCreate(BaseModel):
+    username: str
+    fullname: str
+    password: str
+
+
+class UserMe(BaseModel):
+    username: str
+    fullname: str
+
+
+@app.post("/05_response_model/user", response_model=UserMe, status_code=status.HTTP_201_CREATED)
+def response_model(user: UserCreate):
+    if user.username == "admin":
+        # raise Exception("username can not be 'admin'")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="username can not be 'admin'")
+    return user
