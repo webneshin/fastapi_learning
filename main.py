@@ -104,7 +104,7 @@ def template_sample(request: Request):
 
 
 # database #############################################################################################################
-models.Base.metadata.create_all(bind=engine)
+# models.Base.metadata.create_all(bind=engine)
 
 
 def get_db():
@@ -137,3 +137,16 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     if db_user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return db_user
+
+# alembic ##############################################################################################################
+
+# make migrations with:
+# alembic revision --autogenerate -m "create user model"
+
+# migration with:
+# alembic upgrade head
+# or
+# alembic upgrade a48a95c818e3
+
+# downgrade
+# alembic downgrade a48a95c818e3
